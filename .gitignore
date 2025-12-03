@@ -1,0 +1,73 @@
+# -----------------------------------------------------------
+# Arduino / Mbed OS temporary files
+# -----------------------------------------------------------
+*.bin
+*.elf
+*.hex
+*.eep
+*.map
+*.lst
+*.d
+*.o
+
+# Arduino build folders
+build/
+cmake-build*/
+.cache/
+.pio/
+
+# Arduino core & library folders
+libraries/
+hardware/
+portable/
+packages/
+
+# -----------------------------------------------------------
+# Edge Impulse temporary files
+# -----------------------------------------------------------
+.eval/
+.output/
+edge-impulse-sdk/build/
+edge-impulse-sdk/release/
+
+# Raw audio logs (optional, comment out if you want to keep WAVs)
+*.raw
+*.pcm
+*.dat
+
+# -----------------------------------------------------------
+# Node / Web App folders (for your BLE website)
+# -----------------------------------------------------------
+node_modules/
+dist/
+npm-debug.log
+yarn-error.log
+
+# -----------------------------------------------------------
+# OS-specific clutter
+# -----------------------------------------------------------
+.DS_Store
+Thumbs.db
+__MACOSX/
+desktop.ini
+
+# -----------------------------------------------------------
+# Python virtual environments (in case you use EI CLI)
+# -----------------------------------------------------------
+venv/
+env/
+*.pyc
+__pycache__/
+
+# -----------------------------------------------------------
+# Backup files
+# -----------------------------------------------------------
+*~
+*.tmp
+*.bak
+
+# -----------------------------------------------------------
+# Logs
+# -----------------------------------------------------------
+*.log
+
