@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dog Eating Monitor</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; }
+    h1 { font-size: 24px; }
+    button { padding: 10px 16px; font-size: 16px; margin-bottom: 16px; }
+    .status { font-size: 18px; margin: 8px 0; }
+    #log { margin-top: 16px; font-size: 14px; white-space: pre-line;
+           background:#111; color:#0f0; padding:8px; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <h1>Dog Eating Monitor</h1>
+  <button id="connectBtn">Connect to Bowl</button>
+
+  <div class="status">Current probability: <span id="prob">--</span></div>
+  <div class="status">Current state: <span id="state">UNKNOWN</span></div>
+  <div class="status">Last meal finished at: <span id="lastMeal">--</span></div>
+
+  <h3>Event log</h3>
+  <div id="log"></div>
+
+  <script>
+    // These MUST match your Arduino code
+    const SERVICE_UUID = '19b20000-e8f2-537e-4f6c-d104768a1214';
+    const CHEWING_UUID = '19b20001-e8f2-537e-4f6c-d104768a1214';
+
+    const probSpan = document.getElementById('prob');
+    const stateSpan = document.getElementById('state');
+    const lastMealSpan = document.getElementById('lastMeal');
+    const logDiv = document.getElementById('log');
+
+    const EATING_THRESHOLD = 0.9;
+    const MIN_EATING_WINDOWS = 3;
+    const MIN_STOP_WINDOWS = 3;
+
+    let isEating = false;
+    let highCount = 0;
+    let lowCount = 0;
+
+    function log(msg) {
+      const t = new Date().toLocaleTimeString();
+      logDiv.textContent += `[${t}] ${msg}\n`;
+      console.log(msg);
+    }
+
+    document.getElementById('connectBtn').addEventListener('click', async () => {
+      try {
+        log('Requesting device...');
+
+        // More robust: don't filter by name, show all devices and you pick your Arduino
+        const device = await navigator.bluetooth.requestDevice({
+          acceptAllDevices: true,
+          optionalServices: [SERVICE_UUID]
+        });
+
+        log('Selected device: ' + device.name + ' (' + device.id + ')');
+        const server = await device.gatt.connect();
+        log('GATT connected');
+
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        log('Service found');
+
+        const chewingChar = await service.getCharacteristic(CHEWING_UUID);
+        log('Characteristic found, starting notifications');
+
+        await chewingChar.startNotifications();
+        chewingChar.addEventListener('characteristicvaluechanged', event => {
+          const dv = event.target.value;
+          // BLEFloatCharacteristic uses little-endian float32
+          const prob = dv.getFloat32(0, true);
+          handleProbability(prob);
+        });
+
+        // Initial read
+        const initial = await chewingChar.readValue();
+        handleProbability(initial.getFloat32(0, true));
+      } catch (e) {
+        log('ERROR: ' + e);
+        alert('Error: ' + e);
+      }
+    });
+
+    function handleProbability(prob) {
+      const rounded = prob.toFixed(3);
+      probSpan.textContent = rounded;
+
+      if (prob >= EATING_THRESHOLD) {
+        highCount++;
+        lowCount = 0;
+      } else {
+        lowCount++;
+        highCount = 0;
+      }
+
+      if (!isEating && highCount >= MIN_EATING_WINDOWS) {
+        isEating = true;
+        stateSpan.textContent = 'EATING';
+        log('Eating started (prob ≈ ' + rounded + ')');
+      }
+
+      if (isEating && lowCount >= MIN_STOP_WINDOWS) {
+        isEating = false;
+        stateSpan.textContent = 'NOT EATING';
+        const timeStr = new Date().toLocaleTimeString();
+        lastMealSpan.textContent = timeStr;
+        log('Eating finished. Dog has eaten at ' + timeStr);
+      }
+    }
+  </script>
+</body>
+</html>
