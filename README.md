@@ -71,9 +71,10 @@ smartdogbowl/
  ├── ei-smart-dog-bowl-2.0.zip   # Edge Impulse exported Arduino library
  ├── .gitignore
  └── README.md
-
+```
+```
+```
 ---
-
 ## 🔧 Requirements
 
 ### Hardware
