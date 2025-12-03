@@ -72,3 +72,66 @@ smartdogbowl/
  ├── .gitignore
  └── README.md
 
+---
+
+## 🔧 Requirements
+
+### Hardware
+- Arduino Nano 33 BLE Sense  
+- USB Data Cable  
+- Optional enclosure or bowl mounting system  
+
+### Software
+- Arduino IDE 2.x  
+- Edge Impulse Studio account  
+- Google Chrome (Web Bluetooth enabled)  
+- A lightweight local server for the UI (e.g., Python’s `http.server`)  
+
+---
+
+## 🧠 How It Works
+
+1. **Audio Capture (PDM microphone)**  
+   The Nano 33 BLE Sense collects 1-second audio samples at 16 kHz.
+
+2. **TinyML Inference (Edge Impulse model)**  
+   The model outputs probabilities for:  
+   - `Dog Chewing`  
+   - `Noise`
+
+3. **BLE Transmission**  
+   After each inference cycle, the Arduino sends the **Dog Chewing probability** (float) through a custom BLE characteristic.
+
+4. **Web Bluetooth UI**  
+   A browser-based UI connects to the device, reads the probabilities in real time, and determines whether the dog is currently eating or has stopped.
+
+---
+
+## 📡 Using the System
+
+1. **Upload the Arduino Sketch**  
+   - Import the Edge Impulse `.zip` library  
+   - Select *Arduino Nano 33 BLE Sense*  
+   - Upload  
+   
+2. **Start the Web UI**  
+   - Serve the `dog_eating_ui` folder (e.g., `python -m http.server`)  
+   - Open in Chrome  
+   - Click **Connect via BLE**  
+   - View real-time chewing probability and session logs  
+
+---
+
+## 📝 Limitations
+
+- Dataset is small and mixed with ASMR chewing videos due to limited real dog audio; real-world behavior may vary  
+- This version only detects **chewing sounds**, not **food quantity**  
+- For intake measurement, integrate with a **load cell + HX711** system  
+
+---
+
+## 🤖 AI Assistance
+
+Parts of this README were written and refined with the help of **OpenAI ChatGPT**, while all design, implementation, and experimental work were completed by the project author.
+
+
